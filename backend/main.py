@@ -194,7 +194,7 @@ class MusicGenServer:
 
 
 
-    @modal.fastapi_endpoint(method="POST",requires_proxy_auth=True)
+    @modal.fastapi_endpoint(method="POST")
     def generate(self) -> GenerateMusicResponse:
         output_dir = "/tmp/outputs"
         os.makedirs(output_dir, exist_ok=True)
@@ -220,7 +220,7 @@ class MusicGenServer:
 
     
   
-    @modal.fastapi_endpoint(method="POST",requires_proxy_auth=True)
+    @modal.fastapi_endpoint(method="POST")
     def generate_from_descripiton(self,request:GenerateFromDescriptionRequest) -> GenerateMusicResponseS3:
         prompt=self.generate_prompt(request.full_described_song)
 
@@ -234,7 +234,7 @@ class MusicGenServer:
         description_for_categorization=request.full_described_song, **request.model_dump(exclude={"full_described_song"}))
         
 
-    @modal.fastapi_endpoint(method="POST",requires_proxy_auth=True)
+    @modal.fastapi_endpoint(method="POST")
     def generate_with_described_lyrics(self,request:GenerateWithDescribedLyricsRequest) -> GenerateMusicResponseS3:
         # in this we still need llm to generate lyrics
         lyrics = ""
@@ -243,7 +243,7 @@ class MusicGenServer:
         return self.generate_and_upload_to_s3(prompt=request.prompt, lyrics=lyrics,
                                               description_for_categorization=request.prompt, **request.model_dump(exclude={"described_lyrics", "prompt"}))
 
-    @modal.fastapi_endpoint(method="POST",requires_proxy_auth=True)
+    @modal.fastapi_endpoint(method="POST")
     def generate_with_lyrics(self,request:GenerateWithCustomLyricsRequest) -> GenerateMusicResponseS3:
          return self.generate_and_upload_to_s3(prompt=request.prompt, lyrics=request.lyrics,
                                               description_for_categorization=request.prompt, **request.model_dump(exclude={"prompt", "lyrics"}))
@@ -258,16 +258,12 @@ def main():
    
     endpoint_url = server.generate_with_described_lyrics.get_web_url()
     request_data = GenerateWithDescribedLyricsRequest(
-    prompt="rap",
-    described_lyrics="ankara ankarai messi commentary ",
+    prompt="slow-pop,lofi",
+    described_lyrics="happy days ahead , such a pleasant weather , life is a bliss ",
     guidance_scale=15
 )
-    headers={
-        "Modal-Key":"wk-SJN7uVD9oXvgX0lrT4SaFV",
-        "Modal-Secret":"ws-S9npSO97Nyk2l1gwyX7Kkj"
-
-    }
-    response = requests.post(endpoint_url, json=request_data.model_dump(),headers=headers)
+   
+    response = requests.post(endpoint_url, json=request_data.model_dump())
 #wk-SJN7uVD9oXvgX0lrT4SaFV
 #ws-S9npSO97Nyk2l1gwyX7Kkj
     # response = requests.post(endpoint_url, json=payload)

@@ -36,10 +36,3 @@ frontend need access to the configured S3 bucket.
 
 For a deployed frontend, set `INNGEST_EVENT_KEY` so application events are
 accepted by Inngest Cloud.
-
-## Credits
-
-The app works without Polar credentials. Set `POLAR_ACCESS_TOKEN` and
-`POLAR_WEBHOOK_SECRET` to enable checkout, the customer portal, and paid credit
-increments. Configure the three product IDs in `frontend/src/lib/auth.ts` for
-your Polar catalog before production use.

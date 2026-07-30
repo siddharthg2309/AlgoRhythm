@@ -109,7 +109,7 @@ export function SongPanel() {
       setDescription("");
       setLyrics("");
       setStyleInput("");
-    } catch (error) {
+    } catch {
       toast.error("Failed to generate song");
     } finally {
       setLoading(false);

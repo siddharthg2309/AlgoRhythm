@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- thumbnails use expiring signed S3 URLs. */
+
 import type { Category, Like, Song } from "@prisma/client";
 import { Heart, Loader2, Music, Play } from "lucide-react";
 import { useState } from "react";
@@ -58,6 +60,7 @@ export function SongCard({ song }: { song: SongWithRelation }) {
             <img
               className="h-full w-full object-cover object-center"
               src={song.thumbnailUrl}
+              alt={`${song.title} artwork`}
             />
           ) : (
             <div className="bg-muted flex h-full w-full items-center justify-center">

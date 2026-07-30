@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- thumbnails use expiring signed S3 URLs. */
+
 import {
   Download,
   Loader2,
@@ -76,8 +78,8 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
   const normalizedSearchQuery = searchQuery.toLowerCase();
   const filteredTracks = tracks.filter(
     (track) =>
-      track.title?.toLowerCase().includes(normalizedSearchQuery) ||
-      track.prompt?.toLowerCase().includes(normalizedSearchQuery),
+      (track.title?.toLowerCase().includes(normalizedSearchQuery) ?? false) ||
+      (track.prompt?.toLowerCase().includes(normalizedSearchQuery) ?? false),
   );
 
   return (
@@ -187,6 +189,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                           <img
                             className="h-full w-full object-cover"
                             src={track.thumbnailUrl}
+                            alt={`${track.title ?? "Track"} artwork`}
                           />
                         ) : (
                           <div className="bg-muted flex h-full w-full items-center justify-center">

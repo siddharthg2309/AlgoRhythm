@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- artwork uses expiring signed S3 URLs. */
+
 import {
   Download,
   MoreHorizontal,
@@ -122,6 +124,7 @@ export default function SoundBar() {
                   <img
                     className="h-full w-full rounded-md object-cover"
                     src={track.artwork}
+                    alt={`${track.title ?? "Track"} artwork`}
                   />
                 ) : (
                   <Music className="h-4 w-4 text-white" />

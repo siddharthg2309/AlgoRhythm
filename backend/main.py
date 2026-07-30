@@ -24,10 +24,10 @@ hf_volume = modal.Volume.from_name("qwen-hf-cache", create_if_missing=True)
 aws_secret=modal.Secret.from_name("algo-rhytm-secret")
 
 class AudioGenerationBase(BaseModel):
-    audio_duration: float = 180.0
+    audio_duration: float = 60.0
     seed:int= -1
     guidance_scale: float = 15.0
-    infer_step: int = 60
+    infer_step: int = 25
     instrumental: bool = False
 
 class GenerateFromDescriptionRequest(AudioGenerationBase):
@@ -203,8 +203,8 @@ class MusicGenServer:
         self.music_model(
             prompt="electronic rap",
             lyrics="[verse]\nWaves on the bass, pulsing in the speakers,\nTurn the dial up, we chasing six-figure features,\nGrinding on the beats, codes in the creases,\nDigital hustler, midnight in sneakers.\n\n[chorus]\nElectro vibes, hearts beat with the hum,\nUrban legends ride, we ain't ever numb,\nCircuits sparking live, tapping on the drum,\nLiving on the edge, never succumb.\n\n[verse]\nSynthesizers blaze, city lights a glow,\nRhythm in the haze, moving with the flow,\nSwagger on stage, energy to blow,\nFrom the blocks to the booth, you already know.\n\n[bridge]\nNight's electric, streets full of dreams,\nBass hits collective, bursting at seams,\nHustle perspective, all in the schemes,\nRise and reflective, ain't no in-betweens.\n\n[verse]\nVibin' with the crew, sync in the wire,\nGot the dance moves, fire in the attire,\nRhythm and blues, soul's our supplier,\nRun the digital zoo, higher and higher.\n\n[chorus]\nElectro vibes, hearts beat with the hum,\nUrban legends ride, we ain't ever numb,\nCircuits sparking live, tapping on the drum,\nLiving on the edge, never succumb.",
-            audio_duration=180,
-            infer_step=60,
+            audio_duration=60,
+            infer_step=25,
             guidance_scale=15,
             save_path=output_path,
         )

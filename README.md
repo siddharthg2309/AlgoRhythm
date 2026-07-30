@@ -3,7 +3,8 @@
 Algo Rhythm is an AI music-generation SaaS built with Next.js, Better Auth,
 Prisma/PostgreSQL, Inngest, Modal, S3, and Polar. It supports prompt-only,
 custom-lyrics, and described-lyrics generation; creator track management; a
-community discovery feed; audio playback; likes; and credit purchases.
+  community discovery feed; audio playback; likes; and credit purchases. New
+  generations use a single 60-second, 25-step preview for a fast feedback loop.
 
 ## Architecture
 

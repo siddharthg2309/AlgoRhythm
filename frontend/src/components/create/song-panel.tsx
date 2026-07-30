@@ -263,7 +263,7 @@ export function SongPanel() {
           className="w-full cursor-pointer bg-gradient-to-r from-orange-500 to-pink-500 font-medium text-white hover:from-orange-600 hover:to-pink-600"
         >
           {loading ? <Loader2 className="animate-spin" /> : <Music />}
-          {loading ? "Creating..." : "Create"}
+          {loading ? "Creating preview..." : "Create 60s preview"}
         </Button>
       </div>
     </div>

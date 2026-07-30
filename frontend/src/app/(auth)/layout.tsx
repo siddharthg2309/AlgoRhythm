@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
-import { Providers } from "~/components/ui/providers";
+import { Providers } from "~/components/providers";
 
 export const metadata: Metadata = {
   title: "Music Generator",

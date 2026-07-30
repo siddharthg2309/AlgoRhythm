@@ -73,10 +73,11 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
     setTimeout(() => setIsRefreshing(false), 1000);
   };
 
+  const normalizedSearchQuery = searchQuery.toLowerCase();
   const filteredTracks = tracks.filter(
     (track) =>
-      track.title?.toLowerCase().includes(searchQuery.toLowerCase()) ??
-      track.prompt?.toLowerCase().includes(searchQuery.toLowerCase()),
+      track.title?.toLowerCase().includes(normalizedSearchQuery) ||
+      track.prompt?.toLowerCase().includes(normalizedSearchQuery),
   );
 
   return (
@@ -204,7 +205,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                       {/* Track info */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="trucate text-sm font-medium">
+                          <h3 className="truncate text-sm font-medium">
                             {track.title}
                           </h3>
                           {track.instrumental && (

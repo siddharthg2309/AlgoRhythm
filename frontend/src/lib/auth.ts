@@ -30,7 +30,8 @@ const billingPlugins =
               secret: env.POLAR_WEBHOOK_SECRET,
               onOrderPaid: async (order) => {
                 const userId = order.data.customer.externalId;
-                const credits = creditPacks[order.data.productId] ?? 0;
+                const productId = order.data.productId;
+                const credits = productId ? (creditPacks[productId] ?? 0) : 0;
                 if (!userId || credits === 0) throw new Error("Unknown Polar order");
                 await db.user.update({
                   where: { id: userId },

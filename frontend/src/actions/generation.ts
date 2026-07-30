@@ -53,7 +53,7 @@ export async function queueSong(
       instrumental: generateRequest.instrumental,
       guidanceScale: guidanceScale,
       audioDuration: 60,
-      inferStep: 25,
+      inferStep: 60,
     },
   });
 

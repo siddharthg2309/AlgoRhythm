@@ -194,7 +194,7 @@ class MusicGenServer:
 
 
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate(self) -> GenerateMusicResponse:
         output_dir = "/tmp/outputs"
         os.makedirs(output_dir, exist_ok=True)
@@ -220,8 +220,8 @@ class MusicGenServer:
 
     
   
-    @modal.fastapi_endpoint(method="POST")
-    def generate_from_descripiton(self,request:GenerateFromDescriptionRequest) -> GenerateMusicResponseS3:
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
+    def generate_from_description(self,request:GenerateFromDescriptionRequest) -> GenerateMusicResponseS3:
         prompt=self.generate_prompt(request.full_described_song)
 
         #so using description we need to generate prompt to pass to model for tag 
@@ -234,7 +234,7 @@ class MusicGenServer:
         description_for_categorization=request.full_described_song, **request.model_dump(exclude={"full_described_song"}))
         
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_with_described_lyrics(self,request:GenerateWithDescribedLyricsRequest) -> GenerateMusicResponseS3:
         # in this we still need llm to generate lyrics
         lyrics = ""
@@ -243,7 +243,7 @@ class MusicGenServer:
         return self.generate_and_upload_to_s3(prompt=request.prompt, lyrics=lyrics,
                                               description_for_categorization=request.prompt, **request.model_dump(exclude={"described_lyrics", "prompt"}))
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_with_lyrics(self,request:GenerateWithCustomLyricsRequest) -> GenerateMusicResponseS3:
          return self.generate_and_upload_to_s3(prompt=request.prompt, lyrics=request.lyrics,
                                               description_for_categorization=request.prompt, **request.model_dump(exclude={"prompt", "lyrics"}))

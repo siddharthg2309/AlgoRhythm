@@ -46,6 +46,9 @@ export default async function TrackListFetcher() {
         thumbnailUrl,
         playUrl: null,
         status: song.status,
+        generationStage: song.generationStage,
+        audioDuration: song.audioDuration,
+        inferStep: song.inferStep,
         createdByUserName: song.user?.name,
         published: song.published,
       };

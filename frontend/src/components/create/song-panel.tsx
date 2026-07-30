@@ -263,8 +263,12 @@ export function SongPanel() {
           className="w-full cursor-pointer bg-gradient-to-r from-orange-500 to-pink-500 font-medium text-white hover:from-orange-600 hover:to-pink-600"
         >
           {loading ? <Loader2 className="animate-spin" /> : <Music />}
-          {loading ? "Creating quality preview..." : "Create 60s quality preview"}
+          {loading ? "Creating 45s preview..." : "Create 45s preview"}
         </Button>
+        <p className="text-muted-foreground mt-2 text-center text-xs">
+          25 inference steps. Approve the result to render a 3-minute quality
+          version with 60 steps.
+        </p>
       </div>
     </div>
   );

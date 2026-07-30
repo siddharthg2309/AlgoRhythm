@@ -9,7 +9,9 @@ import boto3
 from prompts import LYRICS_GENERATOR_PROMPT, PROMPT_GENERATOR_PROMPT
 app=modal.App("Algo-Rhythm")
 image=(
-    modal.Image.debian_slim()
+    # ACE-Step pins spaCy 3.8.4, which supports Python 3.11 but not Modal's
+    # current Python 3.13 base image.
+    modal.Image.debian_slim(python_version="3.11")
     .apt_install("git")
     .pip_install_from_requirements("requirements.txt")
     .run_commands(["git clone https://github.com/ace-step/ACE-Step.git /tmp/ACE-Step","cd /tmp/ACE-Step && pip install ."])
@@ -24,7 +26,7 @@ hf_volume = modal.Volume.from_name("qwen-hf-cache", create_if_missing=True)
 aws_secret=modal.Secret.from_name("algo-rhytm-secret")
 
 class AudioGenerationBase(BaseModel):
-    audio_duration: float = 60.0
+    audio_duration: float = 180.0
     seed:int= -1
     guidance_scale: float = 15.0
     infer_step: int = 60
@@ -57,7 +59,10 @@ class GenerateMusicResponse(BaseModel):
     gpu="L40S",
      volumes={"/models": model_volume, "/.cache/huggingface": hf_volume},
     secrets=[aws_secret],
-    scaledown_window=15
+    # A three-minute, 60-step render can exceed Modal's default function limit.
+    # Let the active request finish; the worker still scales down afterwards.
+    timeout=60 * 60,
+    scaledown_window=15,
 
 )
 

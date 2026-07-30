@@ -11,12 +11,13 @@ import {
   Play,
   RefreshCcw,
   Search,
+  Sparkles,
   XCircle,
 } from "lucide-react";
 import { Input } from "../ui/input";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { getPlayUrl } from "~/actions/generation";
+import { approvePreview, getPlayUrl } from "~/actions/generation";
 import { Badge } from "../ui/badge";
 import { renameSong, setPublishedStatus } from "~/actions/song";
 import {
@@ -28,6 +29,7 @@ import {
 import { RenameDialog } from "./rename-dialog";
 import { useRouter } from "next/navigation";
 import { usePlayerStore } from "~/stores/use-player-store";
+import { toast } from "sonner";
 
 export interface Track {
   id: string;
@@ -41,6 +43,9 @@ export interface Track {
   thumbnailUrl: string | null;
   playUrl: string | null;
   status: string | null;
+  generationStage: string;
+  audioDuration: number | null;
+  inferStep: number | null;
   createdByUserName: string | null;
   published: boolean;
 }
@@ -49,6 +54,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null);
+  const [approvingTrackId, setApprovingTrackId] = useState<string | null>(null);
   const [trackToRename, setTrackToRename] = useState<Track | null>(null);
   const router = useRouter();
   const setTrack = usePlayerStore((state) => state.setTrack);
@@ -73,6 +79,19 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
     setIsRefreshing(true);
     router.refresh();
     setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
+  const handleApprove = async (trackId: string) => {
+    setApprovingTrackId(trackId);
+    try {
+      await approvePreview(trackId);
+      toast.success("Quality render queued — this 3-minute version uses 60 steps.");
+      router.refresh();
+    } catch {
+      toast.error("Could not start the quality render. Please try again.");
+    } finally {
+      setApprovingTrackId(null);
+    }
   };
 
   const normalizedSearchQuery = searchQuery.toLowerCase();
@@ -167,10 +186,14 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="text-muted-foreground truncate text-sm font-medium">
-                          Processing song...
+                          {track.generationStage === "full"
+                            ? "Rendering 3-minute quality track..."
+                            : "Creating 45-second preview..."}
                         </h3>
                         <p className="text-muted-foreground truncate text-xs">
-                          Refresh to check the status.
+                          {track.generationStage === "full"
+                            ? "60 inference steps — this can take several minutes."
+                            : "25 inference steps — refresh to check the status."}
                         </p>
                       </div>
                     </div>
@@ -218,10 +241,33 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                         <p className="text-muted-foreground truncate text-xs">
                           {track.prompt}
                         </p>
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          {track.generationStage === "full"
+                            ? "3 min · 60 steps"
+                            : "45 sec preview · 25 steps"}
+                        </p>
                       </div>
 
                       {/* Actions */}
                       <div className="flex items-center gap-2">
+                        {track.generationStage === "preview" && (
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleApprove(track.id);
+                            }}
+                            disabled={approvingTrackId === track.id}
+                            size="sm"
+                            className="cursor-pointer bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600"
+                          >
+                            {approvingTrackId === track.id ? (
+                              <Loader2 className="mr-1 animate-spin" />
+                            ) : (
+                              <Sparkles className="mr-1" />
+                            )}
+                            Approve · 3 min
+                          </Button>
+                        )}
                         <Button
                           onClick={async (e) => {
                             e.stopPropagation();

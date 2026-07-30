@@ -31,6 +31,8 @@ model Song {
   s3Key              String?
   thumbnailS3Key     String?
   status             String    @default("queued")
+  generationStage    String    @default("preview")
+  sourceSongId       String?
   instrumental       Boolean   @default(false)
   prompt             String?
   lyrics             String?

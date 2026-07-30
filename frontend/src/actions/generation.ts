@@ -18,6 +18,19 @@ export interface GenerateRequest {
   instrumental?: boolean;
 }
 
+type GenerationStage = "preview" | "full";
+
+const generationProfiles = {
+  preview: {
+    audioDuration: 45,
+    inferStep: 25,
+  },
+  full: {
+    audioDuration: 180,
+    inferStep: 60,
+  },
+} as const;
+
 export async function generateSong(generateRequest: GenerateRequest) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -25,15 +38,70 @@ export async function generateSong(generateRequest: GenerateRequest) {
 
   if (!session) redirect("/auth/sign-in");
 
-  await queueSong(generateRequest, 15, session.user.id);
+  await queueSong(generateRequest, 15, session.user.id, "preview");
 
   revalidatePath("/create");
+}
+
+export async function approvePreview(previewSongId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) redirect("/auth/sign-in");
+
+  const preview = await db.song.findFirstOrThrow({
+    where: {
+      id: previewSongId,
+      userId: session.user.id,
+      generationStage: "preview",
+      status: "processed",
+    },
+    select: {
+      prompt: true,
+      lyrics: true,
+      fullDescribedSong: true,
+      describedLyrics: true,
+      instrumental: true,
+    },
+  });
+
+  const existingFullTrack = await db.song.findFirst({
+    where: {
+      sourceSongId: previewSongId,
+      userId: session.user.id,
+    },
+    select: { id: true },
+  });
+
+  if (existingFullTrack) {
+    return existingFullTrack.id;
+  }
+
+  const fullTrack = await queueSong(
+    {
+      prompt: preview.prompt ?? undefined,
+      lyrics: preview.lyrics ?? undefined,
+      fullDescribedSong: preview.fullDescribedSong ?? undefined,
+      describedLyrics: preview.describedLyrics ?? undefined,
+      instrumental: preview.instrumental,
+    },
+    15,
+    session.user.id,
+    "full",
+    previewSongId,
+  );
+
+  revalidatePath("/create");
+  return fullTrack.id;
 }
 
 export async function queueSong(
   generateRequest: GenerateRequest,
   guidanceScale: number,
   userId: string,
+  generationStage: GenerationStage = "preview",
+  sourceSongId?: string,
 ) {
   let title = "Untitled";
   if (generateRequest.describedLyrics) title = generateRequest.describedLyrics;
@@ -52,8 +120,10 @@ export async function queueSong(
       fullDescribedSong: generateRequest.fullDescribedSong,
       instrumental: generateRequest.instrumental,
       guidanceScale: guidanceScale,
-      audioDuration: 60,
-      inferStep: 60,
+      audioDuration: generationProfiles[generationStage].audioDuration,
+      inferStep: generationProfiles[generationStage].inferStep,
+      generationStage,
+      sourceSongId,
     },
   });
 
@@ -61,6 +131,8 @@ export async function queueSong(
     name: "generate-song-event",
     data: { songId: song.id, userId: song.userId },
   });
+
+  return song;
 }
 
 export async function getPlayUrl(songId: string) {

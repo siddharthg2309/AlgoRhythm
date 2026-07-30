@@ -19,8 +19,9 @@ community discovery feed; audio playback; likes; and credit purchases.
    `frontend/` to create the schema.
 3. Install dependencies with `npm install` and start the app with
    `npm run dev`.
-4. Start the local Inngest dashboard/worker in a second terminal with
-   `npm run inngest:dev`.
+4. Run `npm run dev`. It starts both Next.js and the local Inngest worker.
+   Use `npm run dev:app` plus `npm run inngest:dev` only when you deliberately
+   want to run them in separate terminals.
 
 The app is available at `http://localhost:3000`. Unauthenticated visitors are
 redirected to the Better Auth sign-in route.
@@ -31,6 +32,9 @@ Deploy the backend with `modal deploy backend/main.py`. Put the resulting
 authenticated Modal endpoint URLs in the three `GENERATE_*` variables, and set
 the matching `MODAL_KEY` and `MODAL_SECRET`. Both the Modal deployment and the
 frontend need access to the configured S3 bucket.
+
+For a deployed frontend, set `INNGEST_EVENT_KEY` so application events are
+accepted by Inngest Cloud.
 
 ## Credits
 
